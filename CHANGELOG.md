@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- Remove deprecated PDF reporter
+- Remove stale CLI flags from README (-k, --vt-apikey)
+- Update Python version requirement to 3.8+ in README
+
 ## 0.2.0
 
 Maintenance update with security hardening and dependency cleanup.
@@ -20,6 +26,7 @@ Maintenance update with security hardening and dependency cleanup.
 - Add CONTRIBUTING.md
 - Enable secret scanning and push protection
 - Deprecate PDF reporter (will be removed in a future version)
+- Add test suite with 82 tests
 
 ## 0.1.0
 
