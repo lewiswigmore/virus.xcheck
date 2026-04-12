@@ -24,7 +24,7 @@ Virus.xcheck is a Python tool designed to check the existence of file hashes in 
 - Interactive HTML reports with visualisations
 
 ## Requirements
-- Python 3.6+
+- Python 3.8+
 
 ## Installation
 
@@ -111,10 +111,8 @@ The terminal will display detailed information about each hash, including:
 - `-s, --single`: Single hash string to check
 - `-f, --file`: Path to CSV file containing hashes
 - `-o, --output`: Path to output file (CSV or JSON format)
-- `-k, --apikey`: Virus.Exchange API key
-- `--vt-apikey`: VirusTotal API key
 - `--html`: Generate HTML report with interactive charts
-- `--save-config`: Save API keys to .env file
+- `--save-config`: Interactively save API keys to .env file
 - `--no-color`: Disable colored output
 
 ## Output Formats

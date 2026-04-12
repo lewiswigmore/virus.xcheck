@@ -4,7 +4,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 
 [project]
 name = "virusxcheck"
-version = "0.2.0"
+version = "0.2.1"
 description = "Cross-check file hashes against Virus Exchange and VirusTotal databases"
 readme = "README.md"
 license = "MIT"
@@ -36,7 +36,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pdf = ["fpdf2~=2.7"]
 dev = ["pytest~=8.0"]
 
 [project.urls]
