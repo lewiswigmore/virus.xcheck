@@ -3,3 +3,5 @@ python-dotenv~=1.0
 colorama~=0.4.6
 plotly~=5.18
 tqdm~=4.66
+ratelimit~=2.2
+tabulate~=0.9
