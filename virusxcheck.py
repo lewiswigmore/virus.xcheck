@@ -89,7 +89,7 @@ class VirusExchangeAPI:
         # Get sample details from the Virus.Exchange API
         url = f"{API_BASE_URL}/samples/{sha256_hash}"
         try:
-            response = self.session.get(url)
+            response = self.session.get(url, timeout=30)
             if response.status_code == 200:
                 return {
                     "status": "Found in VX database",
@@ -118,7 +118,7 @@ class VirusExchangeAPI:
         virustotal_url = f"https://www.virustotal.com/gui/file/{sha256_hash}"
         
         try:
-            response = self.session.head(vx_url)
+            response = self.session.head(vx_url, timeout=30)
             if response.status_code == 200:
                 return {
                     "status": "Found in VX database (fallback check)",
@@ -160,7 +160,7 @@ class VirusTotalAPI:
             
         url = f"{VT_API_BASE_URL}/files/{file_hash}"
         try:
-            response = self.session.get(url)
+            response = self.session.get(url, timeout=30)
             if (response.status_code == 200):
                 return response.json()
             elif response.status_code == 404:
