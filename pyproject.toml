@@ -36,7 +36,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-report = ["plotly~=5.18", "pandas", "jinja2"]
+report = ["plotly>=5.18,<7.0", "pandas", "jinja2"]
 dev = ["pytest~=8.0"]
 
 [project.urls]
