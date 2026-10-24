@@ -12,13 +12,15 @@
       <a href="https://github.com/lewiswigmore/virus.xcheck/blob/main/LICENSE"><img src="https://img.shields.io/github/license/lewiswigmore/virus.xcheck" alt="License"></a>
       <a href="https://github.com/lewiswigmore/virus.xcheck"><img src="https://img.shields.io/badge/GitHub-Follow%20on%20GitHub-inactive.svg?logo=github"></a>
 </p>
- 
+
+> **Service notice (October 2026):** Virus.Exchange (virus.exchange) has shut down: the domain now redirects to [vx-underground.org](https://vx-underground.org/) and its public sample bucket was removed. As of v0.2.3, virusxcheck runs in **VirusTotal-only mode**: VX lookups are disabled and a VirusTotal API key (VIRUSTOTAL_API_KEY) is required.
+
 ## Overview
-Virus.xcheck is a Python tool designed to check the existence of file hashes in the Virus Exchange database. Due to the storage method used by Virus Exchange, only SHA-256 hashes are supported. However, for other hash types, the tool will return VirusTotal data. The tool can read SHA-256 hashes from a CSV file or accept a single hash from the command line, verifying each one against the Virus Exchange database.
+Virus.xcheck is a Python tool that checks file hashes against VirusTotal. It was originally built to cross-check hashes against the Virus Exchange database; Virus.Exchange has since shut down (see the service notice above), and from v0.2.3 the tool runs in VirusTotal-only mode. The tool can read hashes from a CSV file or accept a single hash from the command line.
 
 ## Features
 - Reads hashes from a CSV file or a single hash from the command line
-- Checks each hash against the Virus Exchange API with S3 bucket fallback
+- Checks each hash against the VirusTotal API (Virus Exchange lookups are disabled since the service shut down)
 - Parallel processing for efficient handling of larger files
 - Colorized, beautifully formatted output in the terminal
 - Outputs the results in JSON or CSV format
@@ -57,10 +59,10 @@ pip install -r requirements.txt
 ```
 
 ### API Key Setup
-1. Get an API key from [Virus.Exchange](https://virus.exchange/)
+1. Get an API key from [VirusTotal](https://www.virustotal.com/)
 2. Create a `.env` file in the root directory with your API key:
    ```
-   VIRUSXCHECK_API_KEY=your_api_key_here
+   VIRUSTOTAL_API_KEY=your_api_key_here
    ```
    Alternatively, you can use the `--save-config` option to set your keys interactively:
    ```bash

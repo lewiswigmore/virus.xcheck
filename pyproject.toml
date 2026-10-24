@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "virusxcheck"
-version = "0.2.2"
+version = "0.2.3"
 description = "Cross-check file hashes against Virus Exchange and VirusTotal databases"
 readme = "README.md"
 license = "MIT"

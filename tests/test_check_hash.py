@@ -172,3 +172,35 @@ def test_exception_in_vx_with_vt_still_queries_vt():
     assert result["status"] == "Fallback result"
     assert result["vt_data"] == {"malicious": 7}
     vt_api.get_file_report.assert_called_once_with(SHA256)
+
+
+# -- 9. VX disabled (backend shut down) -----------------------------------
+
+def test_vx_disabled_no_vt_returns_unavailable():
+    api = _make_api()
+    result = check_hash(SHA256, api, vx_enabled=False)
+
+    assert result["status"] == "Virus Exchange lookup unavailable (service shut down)"
+    assert SHA256 in result["virustotal_url"]
+    assert "vt_data" not in result
+    api.get_sample_details.assert_not_called()
+    api.fallback_check.assert_not_called()
+
+
+def test_vx_disabled_with_vt_queries_vt_only():
+    api = _make_api()
+    vt_api = _make_vt_api(scan_results={"malicious": 4})
+
+    result = check_hash(SHA256, api, vt_api=vt_api, vx_enabled=False)
+
+    assert result["status"] == "Virus Exchange lookup unavailable (service shut down)"
+    assert result["vt_data"] == {"malicious": 4}
+    vt_api.get_file_report.assert_called_once_with(SHA256)
+
+
+def test_vx_disabled_invalid_hash_still_invalid():
+    api = _make_api()
+    result = check_hash("nothex!", api, vx_enabled=False)
+
+    assert result["status"] == "Invalid hash format"
+    api.get_sample_details.assert_not_called()
