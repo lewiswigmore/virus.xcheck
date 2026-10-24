@@ -50,17 +50,20 @@ class TestSingleHash:
         mock_result = {"status": "found"}
         with patch.object(sys, "argv", ["virusxcheck", "-s", VALID_SHA256]):
             with patch("virusxcheck.DEFAULT_API_KEY", "test-key"), \
-                 patch("virusxcheck.DEFAULT_VT_API_KEY", ""), \
+                 patch("virusxcheck.DEFAULT_VT_API_KEY", "vt-test-key"), \
                  patch("virusxcheck.VirusExchangeAPI") as mock_vx_cls, \
+                 patch("virusxcheck.VirusTotalAPI") as mock_vt_cls, \
                  patch("virusxcheck.check_hash", return_value=mock_result) as mock_check, \
                  patch("virusxcheck.pretty_print_results"):
                 virusxcheck.main()
-                mock_check.assert_called_once_with(VALID_SHA256, mock_vx_cls.return_value, None)
+                mock_check.assert_called_once_with(
+                    VALID_SHA256, mock_vx_cls.return_value, mock_vt_cls.return_value, False
+                )
 
     def test_invalid_hash_exits_with_code_1(self):
         with patch.object(sys, "argv", ["virusxcheck", "-s", "not-a-hash"]):
             with patch("virusxcheck.DEFAULT_API_KEY", "test-key"), \
-                 patch("virusxcheck.DEFAULT_VT_API_KEY", ""):
+                 patch("virusxcheck.DEFAULT_VT_API_KEY", "vt-test-key"):
                 with pytest.raises(SystemExit) as exc_info:
                     virusxcheck.main()
                 assert exc_info.value.code == 1
@@ -74,7 +77,7 @@ class TestFileInput:
         mock_result = {"status": "found"}
         with patch.object(sys, "argv", ["virusxcheck", "-f", "hashes.csv"]):
             with patch("virusxcheck.DEFAULT_API_KEY", "test-key"), \
-                 patch("virusxcheck.DEFAULT_VT_API_KEY", ""), \
+                 patch("virusxcheck.DEFAULT_VT_API_KEY", "vt-test-key"), \
                  patch("virusxcheck.VirusExchangeAPI"), \
                  patch("virusxcheck.read_csv", return_value=hashes), \
                  patch("virusxcheck.check_hash", return_value=mock_result), \
@@ -88,7 +91,7 @@ class TestNoColorFlag:
     def test_no_color_calls_deinit(self):
         with patch.object(sys, "argv", ["virusxcheck", "--no-color", "-s", VALID_SHA256]):
             with patch("virusxcheck.DEFAULT_API_KEY", "test-key"), \
-                 patch("virusxcheck.DEFAULT_VT_API_KEY", ""), \
+                 patch("virusxcheck.DEFAULT_VT_API_KEY", "vt-test-key"), \
                  patch("virusxcheck.VirusExchangeAPI"), \
                  patch("virusxcheck.check_hash", return_value={}), \
                  patch("virusxcheck.pretty_print_results"), \
@@ -104,7 +107,7 @@ class TestOutputFlag:
         """Helper to run main() with -s and --output."""
         with patch.object(sys, "argv", ["virusxcheck", "-s", VALID_SHA256, "-o", output_path]):
             with patch("virusxcheck.DEFAULT_API_KEY", "test-key"), \
-                 patch("virusxcheck.DEFAULT_VT_API_KEY", ""), \
+                 patch("virusxcheck.DEFAULT_VT_API_KEY", "vt-test-key"), \
                  patch("virusxcheck.VirusExchangeAPI"), \
                  patch("virusxcheck.check_hash", return_value={}), \
                  patch("virusxcheck.write_to_csv") as mock_csv, \
@@ -125,7 +128,7 @@ class TestOutputFlag:
     def test_invalid_extension_exits_with_code_1(self):
         with patch.object(sys, "argv", ["virusxcheck", "-s", VALID_SHA256, "-o", "results.txt"]):
             with patch("virusxcheck.DEFAULT_API_KEY", "test-key"), \
-                 patch("virusxcheck.DEFAULT_VT_API_KEY", ""), \
+                 patch("virusxcheck.DEFAULT_VT_API_KEY", "vt-test-key"), \
                  patch("virusxcheck.VirusExchangeAPI"), \
                  patch("virusxcheck.check_hash", return_value={}):
                 with pytest.raises(SystemExit) as exc_info:

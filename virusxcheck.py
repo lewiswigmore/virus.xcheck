@@ -9,7 +9,7 @@
                                                                                         
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.3"
 
 import os
 import sys
@@ -50,6 +50,16 @@ colorama.init(autoreset=True)
 # API endpoints
 API_BASE_URL = "https://virus.exchange/api"
 VT_API_BASE_URL = "https://www.virustotal.com/api/v3"
+
+# Virus.Exchange (virus.exchange) shut down (October 2026): the domain now
+# redirects to vx-underground.org and its public sample bucket (vxugmwdb) was
+# deleted. VX lookups are disabled; the tool continues as a VirusTotal-only
+# checker and requires a VirusTotal API key.
+VX_BACKEND_UNAVAILABLE = True
+VX_SHUTDOWN_NOTICE = (
+    "Virus Exchange (virus.exchange) is no longer available: the site has shut "
+    "down and its sample bucket was removed. VX lookups are disabled."
+)
 
 # Load API keys from .env file
 load_dotenv()
@@ -223,13 +233,25 @@ def validate_hash(hash_value):
         return "sha512"
     return None
 
-def check_hash(hash_value, api, vt_api=None):
+def check_hash(hash_value, api, vt_api=None, vx_enabled=True):
     # Checks a hash using the Virus.Exchange API with fallback and VirusTotal lookup if available
     result = {}
     
     hash_type = validate_hash(hash_value)
     if hash_type is None:
         return {"status": "Invalid hash format", "virustotal_url": None}
+    
+    # VX backend is shut down: report it plainly instead of a fake "not found"
+    if not vx_enabled:
+        result = {
+            "status": "Virus Exchange lookup unavailable (service shut down)",
+            "virustotal_url": f"https://www.virustotal.com/gui/file/{hash_value}"
+        }
+        if vt_api:
+            vt_data = vt_api.get_file_report(hash_value)
+            vt_results = vt_api.extract_scan_results(vt_data)
+            result["vt_data"] = vt_results
+        return result
     
     # SHA-256 hashes get full VX + VT lookup
     if hash_type == "sha256":
@@ -632,10 +654,11 @@ def main():
     api_key = DEFAULT_API_KEY
     vt_api_key = DEFAULT_VT_API_KEY
     
-    if not api_key:
-        print(f"{Fore.RED}Error: No Virus.Exchange API key found. Set VIRUSXCHECK_API_KEY in your environment or .env file, or use --save-config to save it.{Style.RESET_ALL}")
-        sys.exit(1)
-    
+    # Virus.Exchange (virus.exchange) shut down: VX lookups are disabled and
+    # the tool continues as a VirusTotal-only checker.
+    vx_enabled = not VX_BACKEND_UNAVAILABLE
+    if VX_BACKEND_UNAVAILABLE:
+        print(f"{Fore.RED}{VX_SHUTDOWN_NOTICE}{Style.RESET_ALL}")
     # Initialize API client
     api = VirusExchangeAPI(api_key)
     
@@ -645,6 +668,9 @@ def main():
         vt_api = VirusTotalAPI(vt_api_key)
         print(f"{Fore.GREEN}VirusTotal API integration enabled{Style.RESET_ALL}")
     else:
+        if VX_BACKEND_UNAVAILABLE:
+            print(f"{Fore.RED}Error: A VirusTotal API key is now required (Virus Exchange is no longer available). Set VIRUSTOTAL_API_KEY in your environment or .env file, or use --save-config to save it.{Style.RESET_ALL}")
+            sys.exit(1)
         print(f"{Fore.YELLOW}VirusTotal API integration disabled. Set VIRUSTOTAL_API_KEY in your environment or .env file to enable.{Style.RESET_ALL}")
     
     try:
@@ -653,14 +679,14 @@ def main():
             if not SHA256_PATTERN.match(args.single) and validate_hash(args.single) is None:
                 print(f"{Fore.RED}Error: Invalid hash format. Provide a valid hex hash (MD5, SHA-1, SHA-256 or SHA-512).{Style.RESET_ALL}")
                 sys.exit(1)
-            results = {args.single: check_hash(args.single, api, vt_api)}
+            results = {args.single: check_hash(args.single, api, vt_api, vx_enabled)}
         # Handle CSV file with hashes
         elif args.file:
             hash_values = read_csv(args.file)
             results = {}
             
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-                tasks = {executor.submit(check_hash, hash_value, api, vt_api): hash_value for hash_value in hash_values}
+                tasks = {executor.submit(check_hash, hash_value, api, vt_api, vx_enabled): hash_value for hash_value in hash_values}
                 for future in tqdm(concurrent.futures.as_completed(tasks), total=len(tasks), desc="Processing"):
                     hash_value = tasks[future]
                     results[hash_value] = future.result()

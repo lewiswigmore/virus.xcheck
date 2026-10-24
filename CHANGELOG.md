@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.3
+
+Final maintenance release.
+
+- Virus.Exchange (virus.exchange) has shut down: the domain now redirects to vx-underground.org and its public sample bucket (vxugmwdb) was deleted
+- Print a clear shutdown notice at startup instead of silently reporting every hash as "Not found in VX database"
+- Switch to VirusTotal-only mode: VIRUSTOTAL_API_KEY is now required, the old VX key is no longer used
+- Disable the dead VX API and S3 fallback paths in normal operation
+- Fix version drift: __version__ now matches pyproject (0.2.2 shipped with 0.2.1 in code)
+- Repository archived; the tool remains installable and functional for VirusTotal lookups
+
 ## 0.2.2
 
 - Move plotly, pandas, and jinja2 to optional `[report]` extra (#18)
