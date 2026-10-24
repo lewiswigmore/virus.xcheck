@@ -6,6 +6,7 @@ __pycache__/
 *.pyc
 *.env
 .env
+.env.*
 
 # Ignore test output files (not the tests themselves)
 test_output/
